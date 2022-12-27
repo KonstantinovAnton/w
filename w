@@ -1201,6 +1201,64 @@ int main()
 }
 
 
+Диалоговое окно
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <windows.h>
+#include <Commdlg.h>
+
+OPENFILENAME ofn;
+
+
+// a another memory buffer to contain the file name
+char szFile[100];
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+
+// open a file name
+ZeroMemory(&ofn, sizeof(ofn));
+ofn.lStructSize = sizeof(ofn);
+ofn.hwndOwner = NULL;
+ofn.lpstrFile = szFile;
+ofn.lpstrFile[0] = '\0';
+ofn.nMaxFile = sizeof(szFile);
+//ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+ofn.nFilterIndex = 1;
+ofn.lpstrFileTitle = NULL;
+ofn.nMaxFileTitle = 0;
+ofn.lpstrInitialDir = NULL;
+ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+GetOpenFileName(&ofn);
+
+
+char buffer[500];
+wcstombs(buffer, ofn.lpstrFile, 500);
+
+
+LPSTARTUPINFO lp = calloc(1, sizeof(STARTUPINFO));
+LPPROCESS_INFORMATION lpi = calloc(1, sizeof(PROCESS_INFORMATION));
+
+CreateProcessA(
+buffer,
+" ",
+NULL,
+NULL,
+TRUE,
+NULL,
+NULL,
+NULL,
+lp,
+lpi
+);
+
+WaitForSingleObject(lpi->hProcess, INFINITE);
+
+return 0;
+}
+
 
 
 
