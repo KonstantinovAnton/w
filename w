@@ -282,6 +282,55 @@ int main()
     string_to_int(L"-325");
 }
 8. Программа для записи строки в системный буфер обмена
+
+#include <Windows.h>
+#include <strsafe.h>
+#include <stdio.h>
+LPWSTR ClipboardOutputText();
+int ClipboardInputText(LPWSTR);
+int WINAPI wWinMain(HINSTANCE h, HINSTANCE hh, LPSTR hhh, int hhhh)
+{
+	while (TRUE)
+	{
+		LPSTR Data = ClipboardOutputText();
+		TCHAR Alert[] = L"Тсс!!\n";
+		TCHAR third[512];
+		swprintf(third, sizeof third, L"%s%s", Alert, Data);
+		if (*Data != "")
+		{
+			MessageBoxW(NULL, &third, L"ВОР", MB_OK | MB_ICONINFORMATION);
+		}
+		Sleep(1000);
+	}
+
+	return 1;
+}
+int ClipboardInputText(LPWSTR buffer)//записать строку в системный буфер
+{
+	DWORD len = wcslen(buffer) + 1;
+	HANDLE hMenu = GlobalAlloc(GMEM_MOVEABLE, len * sizeof(LPWSTR));
+	
+	memcpy(GlobalLock(hMenu), buffer, len * sizeof(LPWSTR));
+	GlobalUnlock(hMenu);
+	OpenClipboard(0);
+	EmptyClipboard();
+	SetClipboardData(CF_UNICODETEXT, hMenu);
+	CloseClipboard();
+	return 0;
+}
+TCHAR* ClipboardOutputText()//считать информацию из системного буфера
+{
+	TCHAR* Mess = NULL;
+	OpenClipboard(NULL);
+	HANDLE hClipboardData = GetClipboardData(CF_UNICODETEXT);
+	Mess = (TCHAR*)GlobalLock(hClipboardData);
+	GlobalUnlock(hClipboardData);
+	CloseClipboard();
+	EmptyClipboard();
+	return Mess;
+}
+****************************************************
+
 #include <Windows.h>
 #include <stdio.h>
 void CBInput(LPWSTR text)
